@@ -1,24 +1,55 @@
-var words = new XMLHttpRequest();
-words.open("get", "lib/swn.min", true);
+var database = function () {
+    var idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB,
+        db = null,
+        wordStore = null;
 
-words.onreadystatechange = function (e) {
-    if (words.readyState === 4) {
-        var t = words.response,
-            lines = t.split("\n"),
-            arr = [];
-        for (var i = 0; i < lines.length; i++) {
-            var temp = lines[i].split("\t");
-            arr[i]   = {
-                type:  temp[0],
-                id:    temp[1],
-                pos:   temp[2],
-                neg:   temp[3],
-                words: temp[4]
+    this.open = function (name, version) {
+        console.log("in open");
+
+        var req = idb.open(name, version);
+
+        req.onerror = function (e) {
+            return req.errorCode;
+        };
+
+        req.onsuccess = function (e) {
+            db = e.target.result;
+        };
+
+        req.onupgradeneeded = function (e) {
+            console.log("in onupgradeneeded");
+
+            db = e.target.result;
+            var store = db.createObjectStore("wordlist", {
+                keyPath: "words"
+            });
+
+            store.transaction.oncomplete = function (e) {
+                console.log("in transaction oncomplete");
+                wordStore = db.transaction("wordlist", "readwrite").objectStore("wordlist");
             };
+        };
+    };
+    
+    this.populate = function(){
+        if( wordStore ){
+            console.log("in populate");
+            var wordClass = new wordlist();
+            
+            wordClass.getArray(function (wordData) {
+                console.log("in getArray");
+                console.log(wordData);
+                
+                for (var i in wordData) {
+                    var wordAdd = wordStore.add(wordData[i]);
+                    
+                    /* wordAdd.onsuccess = function (e) {
+                        console.log("added " + wordData[i]);
+                    }; */
+                }
+            });
+        } else {
+            console.log("Database has not been initialized.");
         }
-        // document.body.innerHTML = arr[117658].words;
-        // prints "deflagrate#1". success! need to put it in an indexedDB now
-    }
+    };
 };
-
-words.send();
