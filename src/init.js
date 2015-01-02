@@ -1,6 +1,9 @@
 (function () {
     var myDB = new database();
-    myDB.open("nicebook", 1);
-    // write a callback for open to do this properly!
-    myDB.populate();
+    myDB.open("nicebook", 1, function () {
+        var wordClass = new wordlist();
+        wordClass.getArray(function (wordData) {
+            myDB.populate(wordData);
+        });
+    });
 })();

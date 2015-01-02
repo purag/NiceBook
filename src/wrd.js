@@ -2,10 +2,9 @@ var wordlist = function () {
     this.getArray = function (cb) {
         var arr = [],
             file = new XMLHttpRequest();
-        file.open("get", "lib/swn.min", true);
+        file.open("get", "https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/purmou/NiceBook/master/lib/swn.min", true);
         file.onreadystatechange = function (e) {
             if (file.readyState === 4) {
-                console.log("in onreadystatechange, passed the test");
                 var t = file.response,
                     lines = t.split("\n");
                 for (var i = 0; i < lines.length; i++) {
@@ -18,7 +17,6 @@ var wordlist = function () {
                         words: temp[4]
                     };
                 }
-                console.log("firing callback");
                 return cb(arr);
             }
         };

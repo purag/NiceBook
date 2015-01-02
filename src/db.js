@@ -3,9 +3,7 @@ var database = function () {
         db = null,
         wordStore = null;
 
-    this.open = function (name, version) {
-        console.log("in open");
-
+    this.open = function (name, version, cb) {
         var req = idb.open(name, version);
 
         req.onerror = function (e) {
@@ -14,42 +12,33 @@ var database = function () {
 
         req.onsuccess = function (e) {
             db = e.target.result;
+            return cb();
         };
 
         req.onupgradeneeded = function (e) {
-            console.log("in onupgradeneeded");
-
             db = e.target.result;
             var store = db.createObjectStore("wordlist", {
                 keyPath: "words"
             });
 
             store.transaction.oncomplete = function (e) {
-                console.log("in transaction oncomplete");
-                wordStore = db.transaction("wordlist", "readwrite").objectStore("wordlist");
+                return cb();
             };
         };
     };
-    
-    this.populate = function(){
-        if( wordStore ){
-            console.log("in populate");
-            var wordClass = new wordlist();
-            
-            wordClass.getArray(function (wordData) {
-                console.log("in getArray");
-                console.log(wordData);
-                
-                for (var i in wordData) {
-                    var wordAdd = wordStore.add(wordData[i]);
-                    
-                    /* wordAdd.onsuccess = function (e) {
-                        console.log("added " + wordData[i]);
-                    }; */
-                }
-            });
-        } else {
-            console.log("Database has not been initialized.");
+
+    this.populate = function (table, data) {
+        var store = db.transaction(table, "readwrite").objectStore(table);
+
+        addData(0);
+        function addData(i) {
+            if (i < data.length) {
+                store.put(data[i]).onsuccess = function (e) {
+                    addData(++i);
+                };
+            } else {
+                return;
+            }
         }
     };
 };
