@@ -2,7 +2,7 @@ var wordlist = function () {
     this.getArray = function (cb) {
         var arr = [],
             file = new XMLHttpRequest();
-        file.open("get", "https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/purmou/NiceBook/master/lib/swn.min", true);
+        file.open("get", "lib/swn.min", true);
         file.onreadystatechange = function (e) {
             if (file.readyState === 4) {
                 var t = file.response,
