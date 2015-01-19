@@ -1,9 +1,7 @@
 (function () {
-    var myDB = new database();
-    myDB.open("nicebook", 1, function () {
-        var wordClass = new wordlist();
-        wordClass.getArray(function (wordData) {
-            myDB.populate("wordlist", wordData);
-        });
-    });
+		alert("content script is running");
+		var nb = new nicebook();
+		nb.init(function(){
+			alert("setup complete");
+		});
 })();

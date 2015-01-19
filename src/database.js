@@ -7,12 +7,12 @@ var database = function () {
         var req = idb.open(name, version);
 
         req.onerror = function (e) {
-            return req.errorCode;
+            return cb(req.errorCode);
         };
 
         req.onsuccess = function (e) {
             db = e.target.result;
-            return cb();
+            return cb(1);
         };
 
         req.onupgradeneeded = function (e) {
@@ -22,12 +22,12 @@ var database = function () {
             });
 
             store.transaction.oncomplete = function (e) {
-                return cb();
+                return cb(2);
             };
         };
     };
 
-    this.populate = function (table, data) {
+    this.populate = function (table, data, cb) {
         var store = db.transaction(table, "readwrite").objectStore(table);
 
         addData(0);
@@ -37,7 +37,7 @@ var database = function () {
                     addData(++i);
                 };
             } else {
-                return;
+                return cb(i);
             }
         }
     };
